@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; padding: 12px; background: #fff; color: #111; }
+
+    .section-head {
+      font-size: 11px; color: #666; font-weight: 600;
+      letter-spacing: 0.04em; text-transform: uppercase; margin-bottom: 10px;
+    }
+
+    /* ── Mode toggle ── */
+    .mode-toggle {
+      display: flex; margin-bottom: 1.25rem;
+      border: 1px solid #ccc; border-radius: 8px;
+      overflow: hidden; width: 100%;
+    }
+    .mode-btn {
+      flex: 1; padding: 7px 6px; font-size: 11px; font-weight: 600;
+      border: none; background: transparent; color: #666; cursor: pointer;
+    }
+    .mode-btn.active { background: #f0f0f0; color: #111; }
+
+    /* ── Stage rows (stacked for narrow sidebar) ── */
+    .stage-row { margin-bottom: 14px; }
+    .stage-header {
+      display: flex; justify-content: space-between;
+      align-items: center; margin-bottom: 4px;
+    }
+    .stage-label { font-size: 12px; color: #111; font-weight: 600; }
+    .badge { font-size: 11px; font-weight: 600; }
+    .bar-track { height: 22px; background: #f0f0f0; border-radius: 6px; overflow: hidden; }
+    .bar-fill {
+      height: 100%; border-radius: 6px;
+      display: flex; align-items: center; padding-left: 8px;
+      font-size: 11px; font-weight: 600; color: #fff;
+      transition: width 0.25s ease; white-space: nowrap; overflow: hidden;
+    }
+    .stage-ctrl {
+      display: flex; align-items: center; gap: 4px;
+      margin-top: 4px; justify-content: flex-end;
+    }
+
+    input[type=number] {
+      border: 1px solid #ccc; border-radius: 6px;
+      padding: 3px 5px; font-size: 12px; background: #fff; color: #111;
+    }
+    .num-input { width: 64px; text-align: right; }
+    .ptr-input { width: 48px; text-align: right; }
+    .ptr-unit  { font-size: 11px; color: #666; }
+
+    /* ── Summary cards ── */
+    .summary-grid { display: grid; gap: 10px; margin-top: 1rem; }
+    .metric-card { background: #f5f5f5; border-radius: 8px; padding: 10px 12px; }
+    .metric-label { font-size: 11px; color: #666; margin-bottom: 4px; }
+    .metric-value { font-size: 18px; font-weight: 700; color: #111; }
+    .metric-sub { font-size: 11px; color: #666; margin-top: 2px; }
+    .card-note { font-size: 10px; color: #999; margin-top: 4px; font-style: italic; }
+    .top-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+    .divider { border: none; border-top: 1px solid #e0e0e0; margin: 1rem 0; }
+
+    .interest-row {
+      display: flex; align-items: center; gap: 6px;
+      margin-top: 6px; justify-content: flex-end;
+    }
+    .interest-row label { font-size: 11px; color: #666; }
+    .interest-row input { width: 44px; text-align: right; }
+  </style>
+</head>
+<body>
+
+  <!-- Mode toggle -->
+  <div class="mode-toggle">
+    <button class="mode-btn active" id="btn-count" onclick="setMode('count')">From headcount</button>
+    <button class="mode-btn" id="btn-hires" onclick="setMode('hires')">From hires needed</button>
+  </div>
+
+  <div id="stages-container"></div>
+
+  <hr class="divider">
+  <p class="section-head">Summary</p>
+
+  <div class="summary-grid">
+    <div class="top-row">
+      <div class="metric-card">
+        <div class="metric-label">Recruiter screens</div>
+        <div class="metric-value" id="sum-top">&mdash;</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label" id="lbl-bottom">Offers extended</div>
+        <div class="metric-value" id="sum-bottom">&mdash;</div>
+      </div>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-label">Overall pass-through</div>
+      <div class="metric-value" id="sum-rate">&mdash;</div>
+      <div class="metric-sub" id="sum-note"></div>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-label">Screens/week to hit goal by EOY
+        (<span id="weeks-label">&mdash;</span> working weeks left)</div>
+      <div class="metric-value" id="sum-screens">&mdash;</div>
+      <div class="metric-sub" id="sum-screens-note"></div>
+      <div class="card-note">December excluded to account for time in process.</div>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-label">Sourced outreach/week
+        (50&percnt; of offer funnel &middot; <span id="weeks-label2">&mdash;</span> wks left)</div>
+      <div class="interest-row">
+        <label>Interest rate</label>
+        <input type="number" id="interest-rate" value="10" min="1" max="100" step="1" oninput="update()">
+        <span class="ptr-unit">%</span>
+      </div>
+      <div class="metric-value" id="sum-sourced">&mdash;</div>
+      <div class="metric-sub" id="sum-sourced-note"></div>
+      <div class="card-note">December excluded to account for time in process.</div>
+    </div>
+  </div>
+
+<script>
+// ── Pipeline stage definitions ──
+const STAGES = [
+  { id:"app",      label:"Application review", defCount:500, defPtr:24  },
+  { id:"rec",      label:"Recruiting screen",  defCount:120, defPtr:50  },
+  { id:"assess",   label:"Assessment",         defCount:60,  defPtr:33  },
+  { id:"onsite",   label:"Onsite",             defCount:20,  defPtr:50  },
+  { id:"preoffer", label:"Pre offer",          defCount:10,  defPtr:80  },
+  { id:"offer",    label:"Offer",              defCount:8,   defPtr:null}
+];
+const COLORS = ["#1D9E75","#185FA5","#7F77DD","#D4537E","#D85A30","#BA7517"];
+
+let mode = "count";
+const container = document.getElementById("stages-container");
+
+// Weeks remaining until end of November (excludes December)
+function weeksRemainingExcludeDecember() {
+  const now = new Date();
+  const endOfNov = new Date(now.getFullYear(), 10, 30);
+  if (now >= endOfNov) return 0;
+  return Math.max(0, Math.round((endOfNov - now) / (7 * 864e5)));
+}
+
+const WEEKS = weeksRemainingExcludeDecember();
+document.getElementById("weeks-label").textContent  = WEEKS;
+document.getElementById("weeks-label2").textContent = WEEKS;
+
+// ── Build stage rows ──
+STAGES.forEach(function(s, i) {
+  var row = document.createElement("div");
+  row.className = "stage-row";
+
+  // Header: label + badge
+  var hdr = document.createElement("div");
+  hdr.className = "stage-header";
+  var lbl = document.createElement("div");
+  lbl.className = "stage-label";
+  lbl.textContent = s.label;
+  var badge = document.createElement("div");
+  badge.className = "badge";
+  badge.id = "badge-" + s.id;
+  hdr.appendChild(lbl);
+  hdr.appendChild(badge);
+
+  // Bar
+  var track = document.createElement("div");
+  track.className = "bar-track";
+  var fill = document.createElement("div");
+  fill.className = "bar-fill";
+  fill.id = "fill-" + s.id;
+  fill.style.background = COLORS[i];
+  track.appendChild(fill);
+
+  // Controls
+  var ctrl = document.createElement("div");
+  ctrl.className = "stage-ctrl";
+
+  var numInp = document.createElement("input");
+  numInp.type = "number"; numInp.className = "num-input"; numInp.min = 0;
+  numInp.value = s.defCount; numInp.id = "num-" + s.id;
+  numInp.addEventListener("input", update);
+
+  var ptrInp = document.createElement("input");
+  ptrInp.type = "number"; ptrInp.className = "ptr-input";
+  ptrInp.min = 1; ptrInp.max = 100; ptrInp.step = 1;
+  ptrInp.value = s.defPtr || ""; ptrInp.id = "ptr-" + s.id;
+  ptrInp.addEventListener("input", update);
+
+  var ptrUnit = document.createElement("span");
+  ptrUnit.className = "ptr-unit"; ptrUnit.textContent = "%";
+  ptrUnit.id = "ptrunit-" + s.id;
+
+  ctrl.appendChild(numInp);
+  ctrl.appendChild(ptrInp);
+  ctrl.appendChild(ptrUnit);
+
+  row.appendChild(hdr);
+  row.appendChild(track);
+  row.appendChild(ctrl);
+  container.appendChild(row);
+});
+
+// ── Mode switching ──
+function setMode(m) {
+  mode = m;
+  document.getElementById("btn-count").classList.toggle("active", m === "count");
+  document.getElementById("btn-hires").classList.toggle("active", m === "hires");
+  document.getElementById("lbl-bottom").textContent = m === "count" ? "Offers extended" : "Offers needed";
+
+  STAGES.forEach(function(s, i) {
+    var numInp  = document.getElementById("num-"     + s.id);
+    var ptrInp  = document.getElementById("ptr-"     + s.id);
+    var ptrUnit = document.getElementById("ptrunit-" + s.id);
+    var badge   = document.getElementById("badge-"   + s.id);
+    var isLast  = i === STAGES.length - 1;
+
+    if (m === "count") {
+      numInp.style.display  = "";
+      ptrInp.style.display  = "none";
+      ptrUnit.style.display = "none";
+      badge.style.display   = "";
+    } else {
+      if (isLast) {
+        numInp.style.display  = "";
+        ptrInp.style.display  = "none";
+        ptrUnit.style.display = "none";
+      } else {
+        numInp.style.display  = "none";
+        ptrInp.style.display  = "";
+        ptrUnit.style.display = "";
+      }
+      badge.style.display = "none";
+    }
+  });
+  update();
+}
+
+function badgeColor(r) {
+  if (r >= 50) return "#1e7e34";
+  if (r >= 25) return "#856404";
+  return "#721c24";
+}
+
+function update() { mode === "count" ? updateCount() : updateHires(); }
+
+// ── Shared: weekly screens & sourcing calc ──
+function updateScreensCard(offerCount, ptrs) {
+  var recIdx   = STAGES.findIndex(function(s) { return s.id === "rec"; });
+  var offerIdx = STAGES.findIndex(function(s) { return s.id === "offer"; });
+
+  // Compound pass-through from recruiter screen → offer
+  var recToOfferPtr = 1;
+  for (var i = recIdx; i < offerIdx; i++) {
+    recToOfferPtr *= (ptrs[i] !== null ? ptrs[i] : 1);
+  }
+
+  var totalScreens = recToOfferPtr > 0 ? Math.ceil(offerCount / recToOfferPtr) : null;
+  var perWk = (totalScreens !== null && WEEKS > 0) ? Math.ceil(totalScreens / WEEKS) : null;
+  document.getElementById("sum-screens").textContent = perWk !== null ? perWk.toLocaleString() : "\u2014";
+  document.getElementById("sum-screens-note").textContent =
+    totalScreens !== null ? totalScreens.toLocaleString() + " total screens needed" : "";
+
+  // Sourced-candidate outreach (assumes 50% of offers come from sourcing)
+  var interestRate    = Math.max(1, parseFloat(document.getElementById("interest-rate").value) || 10) / 100;
+  var sourcedOffers   = offerCount * 0.5;
+  var sourcedAtRec    = recToOfferPtr > 0 ? sourcedOffers / recToOfferPtr : null;
+  var sourcedOutreach = sourcedAtRec !== null ? Math.ceil(sourcedAtRec / interestRate) : null;
+  var sourcedPerWk    = (sourcedOutreach !== null && WEEKS > 0) ? Math.ceil(sourcedOutreach / WEEKS) : null;
+  document.getElementById("sum-sourced").textContent = sourcedPerWk !== null ? sourcedPerWk.toLocaleString() : "\u2014";
+  document.getElementById("sum-sourced-note").textContent =
+    sourcedOutreach !== null ? sourcedOutreach.toLocaleString() + " total outreach" : "";
+}
+
+// ── "Start from headcount" mode ──
+function updateCount() {
+  var vals   = STAGES.map(function(s) { return Math.max(0, parseFloat(document.getElementById("num-" + s.id).value) || 0); });
+  var maxVal = vals[0] || 1;
+  var ptrs   = vals.map(function(v, i) { return i === 0 ? null : (vals[i-1] > 0 ? v / vals[i-1] : null); });
+
+  vals.forEach(function(v, i) {
+    var fill  = document.getElementById("fill-"  + STAGES[i].id);
+    fill.style.width = (maxVal > 0 ? Math.min(100, v / maxVal * 100) : 0).toFixed(1) + "%";
+    fill.textContent  = v > 0 ? v.toLocaleString() : "";
+
+    var badge = document.getElementById("badge-" + STAGES[i].id);
+    if (i === 0) {
+      badge.textContent = "\u2014"; badge.style.color = "#666";
+    } else {
+      var prev = vals[i-1];
+      if (prev > 0) {
+        var r = Math.round(v / prev * 100);
+        badge.textContent = r + "%"; badge.style.color = badgeColor(r);
+      } else {
+        badge.textContent = "\u2014"; badge.style.color = "#666";
+      }
+    }
+  });
+
+  var recIdx = STAGES.findIndex(function(s) { return s.id === "rec"; });
+  var bot    = vals[vals.length - 1];
+  document.getElementById("sum-top").textContent    = vals[recIdx].toLocaleString();
+  document.getElementById("sum-bottom").textContent = bot.toLocaleString();
+  if (vals[0] > 0) {
+    document.getElementById("sum-rate").textContent = (bot / vals[0] * 100).toFixed(2) + "%";
+    document.getElementById("sum-note").textContent = "1 in " + Math.round(vals[0] / (bot || 1)) + " applicants";
+  } else {
+    document.getElementById("sum-rate").textContent = "\u2014";
+    document.getElementById("sum-note").textContent = "";
+  }
+  updateScreensCard(bot, ptrs);
+}
+
+// ── "Start from hires needed" mode ──
+function updateHires() {
+  var n           = STAGES.length;
+  var hiresNeeded = Math.max(0, parseFloat(document.getElementById("num-" + STAGES[n-1].id).value) || 0);
+
+  var ptrs = STAGES.slice(0, n-1).map(function(s) {
+    var v = parseFloat(document.getElementById("ptr-" + s.id).value);
+    return (isNaN(v) || v <= 0 || v > 100) ? null : v / 100;
+  });
+
+  // Work backwards from offers to applications
+  var counts    = new Array(n).fill(0);
+  counts[n - 1] = hiresNeeded;
+  for (var i = n - 2; i >= 0; i--) {
+    counts[i] = ptrs[i] ? Math.round(counts[i + 1] / ptrs[i]) : null;
+  }
+  var maxVal = counts[0] || 1;
+
+  counts.forEach(function(v, i) {
+    var fill = document.getElementById("fill-" + STAGES[i].id);
+    var disp = v !== null ? v : 0;
+    fill.style.width    = (maxVal > 0 ? Math.min(100, disp / maxVal * 100) : 0).toFixed(1) + "%";
+    fill.textContent    = v !== null && v > 0 ? v.toLocaleString() : "";
+
+    var badge = document.getElementById("badge-" + STAGES[i].id);
+    if (i < n - 1) {
+      var ptr = ptrs[i];
+      if (ptr !== null) {
+        var r = Math.round(ptr * 100);
+        badge.textContent = r + "%"; badge.style.color = badgeColor(r);
+      } else {
+        badge.textContent = "\u2014"; badge.style.color = "#666";
+      }
+    } else {
+      badge.textContent = "\u2014"; badge.style.color = "#666";
+    }
+  });
+
+  var recIdx = STAGES.findIndex(function(s) { return s.id === "rec"; });
+  document.getElementById("sum-top").textContent    = counts[recIdx] !== null ? counts[recIdx].toLocaleString() : "\u2014";
+  document.getElementById("sum-bottom").textContent = hiresNeeded.toLocaleString();
+
+  var top = counts[0];
+  if (top && hiresNeeded && top > 0) {
+    document.getElementById("sum-rate").textContent = (hiresNeeded / top * 100).toFixed(2) + "%";
+    document.getElementById("sum-note").textContent = "1 in " + Math.round(top / hiresNeeded) + " applicants";
+  } else {
+    document.getElementById("sum-rate").textContent = "\u2014";
+    document.getElementById("sum-note").textContent = "";
+  }
+  updateScreensCard(hiresNeeded, ptrs.concat([null]));
+}
+
+// Boot
+setMode("count");
+</script>
+</body>
+</html>
