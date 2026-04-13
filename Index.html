@@ -9,16 +9,21 @@
 
     .container { max-width: 1400px; margin: 0 auto; padding: 32px 48px 56px; }
 
-    /* ── Header ── */
-    .page-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; }
-    .page-header h1 { font-size: 28px; font-weight: 700; color: #37352f; }
-    .page-header .subtitle { font-size: 14px; color: #9b9a97; margin-top: 4px; }
-    .admin-link {
-      font-size: 12px; font-weight: 500; color: #37352f; text-decoration: none;
-      padding: 5px 12px; border: 1px solid #e0dfdc; border-radius: 4px; display: none;
-      background: #f7f6f3;
+    /* ── Top bar with tabs ── */
+    .top-bar { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1.5rem; border-bottom: 1px solid #e9e9e7; padding-bottom: 0; }
+    .top-bar-left h1 { font-size: 28px; font-weight: 700; color: #37352f; }
+    .top-bar-left .subtitle { font-size: 14px; color: #9b9a97; margin-top: 2px; margin-bottom: 10px; }
+    .tab-bar { display: flex; gap: 0; }
+    .tab-btn {
+      padding: 8px 20px; font-size: 13px; font-weight: 500; color: #9b9a97;
+      background: none; border: none; border-bottom: 2px solid transparent;
+      cursor: pointer; transition: color 0.15s, border-color 0.15s;
+      margin-bottom: -1px;
     }
-    .admin-link:hover { background: #eeede9; }
+    .tab-btn:hover { color: #37352f; }
+    .tab-btn.active { color: #37352f; border-bottom-color: #37352f; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
 
     /* ── Preset bar ── */
     .preset-bar {
@@ -42,6 +47,7 @@
     .btn-danger  { background: #fff; color: #eb5757; border: 1px solid #e0dfdc; }
     .btn-danger:hover { background: #fdf2f2; }
     .btn:disabled { opacity: 0.35; cursor: default; }
+    .btn-sm { padding: 3px 8px; font-size: 11px; }
     .preset-bar .user-info { margin-left: auto; font-size: 11px; color: #b4b4b0; }
 
     /* ── Section headers ── */
@@ -52,6 +58,12 @@
       display: flex; justify-content: space-between; align-items: center;
       text-transform: uppercase; letter-spacing: 0.06em;
     }
+    .section-bar .refresh-btn {
+      font-size: 11px; font-weight: 500; color: #9b9a97; background: #f7f6f3;
+      border: 1px solid #e0dfdc; border-radius: 4px; padding: 3px 10px; cursor: pointer;
+      text-transform: none; letter-spacing: 0;
+    }
+    .section-bar .refresh-btn:hover { background: #eeede9; color: #37352f; }
 
     /* ── Scorecard row ── */
     .scorecard-row {
@@ -140,10 +152,41 @@
       background: #f7f6f3; border: none; border-radius: 8px; padding: 16px 18px;
     }
     .target-card label { font-size: 11px; color: #9b9a97; display: block; margin-bottom: 4px; font-weight: 500; }
-    .target-card input {
-      width: 70px; text-align: right; font-size: 14px; font-weight: 600;
-    }
+    .target-card input { width: 70px; text-align: right; font-size: 14px; font-weight: 600; }
     .target-card .card-note { font-size: 10px; color: #c4c4c0; margin-top: 6px; font-style: italic; }
+
+    /* ── Admin tables ── */
+    .table-wrap { background: #fff; border: 1px solid #e9e9e7; border-radius: 8px; overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th {
+      background: #f7f6f3; text-align: left; padding: 10px 14px;
+      font-size: 11px; color: #9b9a97; text-transform: uppercase;
+      letter-spacing: 0.04em; border-bottom: 1px solid #e9e9e7; font-weight: 500;
+    }
+    td { padding: 10px 14px; border-bottom: 1px solid #f1f0ed; vertical-align: top; color: #37352f; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #fafaf9; }
+    td select { padding: 3px 6px; font-size: 12px; border: 1px solid #e0dfdc; border-radius: 4px; background: #fff; color: #37352f; }
+
+    /* ── Admin filters / add row / csv ── */
+    .filters { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; align-items: center; }
+    .filters select, .filters input {
+      padding: 5px 8px; font-size: 12px; border: 1px solid #e0dfdc; border-radius: 4px; background: #fff; color: #37352f;
+    }
+    .filters input { width: 220px; }
+    .add-row { display: flex; gap: 8px; align-items: center; margin-top: 12px; flex-wrap: wrap; }
+    .add-row input, .add-row select { padding: 5px 8px; font-size: 13px; border: 1px solid #e0dfdc; border-radius: 4px; color: #37352f; }
+    .add-row input { width: 280px; }
+    .csv-section { margin-top: 12px; padding: 16px; background: #f7f6f3; border: none; border-radius: 8px; }
+    .csv-section textarea { width: 100%; height: 80px; font-family: monospace; font-size: 12px; border: 1px solid #e0dfdc; border-radius: 4px; padding: 8px; resize: vertical; background: #fff; color: #37352f; }
+    .csv-section p { font-size: 11px; color: #9b9a97; margin-bottom: 6px; }
+    .detail-toggle { color: #37352f; cursor: pointer; font-size: 11px; text-decoration: underline; }
+    .detail-toggle:hover { color: #9b9a97; }
+    .detail-content { display: none; margin-top: 4px; font-size: 11px; color: #6b6b6b; white-space: pre-wrap; word-break: break-all; background: #f7f6f3; padding: 8px 10px; border-radius: 4px; max-height: 200px; overflow: auto; }
+    .pagination { display: flex; gap: 8px; align-items: center; margin-top: 10px; justify-content: center; }
+    .pagination span { font-size: 12px; color: #9b9a97; }
+
+    .admin-loading { text-align: center; padding: 40px; color: #9b9a97; font-size: 14px; }
 
     /* ── Toast ── */
     .toast {
@@ -167,118 +210,252 @@
 <body>
 <div class="container">
 
-  <!-- Header -->
-  <div class="page-header">
-    <div>
+  <!-- ══════════ Top bar with tabs ══════════ -->
+  <div class="top-bar">
+    <div class="top-bar-left">
       <h1>Hiring Funnel Calculator</h1>
       <p class="subtitle">Model your recruiting pipeline volume, pass-through rates, and weekly targets.</p>
     </div>
-    <a class="admin-link" id="admin-link" href="?page=admin">Admin</a>
-  </div>
-
-  <!-- Preset bar -->
-  <div class="preset-bar" id="preset-bar">
-    <label>Preset</label>
-    <select id="preset-select"><option value="">— none —</option></select>
-    <button class="btn btn-primary" id="btn-save" onclick="saveCurrentPreset()">Save</button>
-    <button class="btn btn-danger" id="btn-delete" onclick="deleteCurrentPreset()" disabled>Delete</button>
-    <span class="user-info" id="user-info"></span>
-  </div>
-
-  <!-- Summary scorecards -->
-  <div class="section-bar">Summary</div>
-  <div class="scorecard-row">
-    <div class="scorecard" data-def="sourcedweek">
-      <div class="scorecard-label">Sourced / Week</div>
-      <div class="scorecard-value" id="sum-sourced">&mdash;</div>
-      <div class="scorecard-sub" id="sum-sourced-note"></div>
-      <div class="scorecard-hint">click for definition</div>
-    </div>
-    <div class="scorecard" data-def="screens">
-      <div class="scorecard-label">Recruiter Screens</div>
-      <div class="scorecard-value" id="sum-top">&mdash;</div>
-      <div class="scorecard-hint">click for definition</div>
-    </div>
-    <div class="scorecard" data-def="screensweek">
-      <div class="scorecard-label">Screens / Week</div>
-      <div class="scorecard-value" id="sum-screens">&mdash;</div>
-      <div class="scorecard-sub" id="sum-screens-note"></div>
-      <div class="scorecard-hint">click for definition</div>
-    </div>
-    <div class="scorecard" data-def="passthrough">
-      <div class="scorecard-label">Pass-through Rate</div>
-      <div class="scorecard-value" id="sum-rate">&mdash;</div>
-      <div class="scorecard-sub" id="sum-note"></div>
-      <div class="scorecard-hint">click for definition</div>
-    </div>
-    <div class="scorecard" data-def="offers">
-      <div class="scorecard-label" id="lbl-bottom">Offers Extended</div>
-      <div class="scorecard-value" id="sum-bottom">&mdash;</div>
-      <div class="scorecard-hint">click for definition</div>
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="switchTab('calc')">Calculator</button>
+      <button class="tab-btn" id="admin-tab-btn" onclick="switchTab('admin')" style="display:none;">Admin</button>
     </div>
   </div>
 
-  <!-- Definition modal -->
-  <div class="modal-overlay" id="def-modal" onclick="closeDef(event)">
-    <div class="modal">
-      <button class="modal-close" onclick="closeDef()">&times;</button>
-      <h2 id="def-title"></h2>
-      <p id="def-body"></p>
+  <!-- ══════════ CALCULATOR TAB ══════════ -->
+  <div class="tab-panel active" id="panel-calc">
+
+    <!-- Preset bar -->
+    <div class="preset-bar" id="preset-bar">
+      <label>Preset</label>
+      <select id="preset-select"><option value="">— none —</option></select>
+      <button class="btn btn-primary" id="btn-save" onclick="saveCurrentPreset()">Save</button>
+      <button class="btn btn-danger" id="btn-delete" onclick="deleteCurrentPreset()" disabled>Delete</button>
+      <span class="user-info" id="user-info"></span>
+    </div>
+
+    <!-- Summary scorecards -->
+    <div class="section-bar"><span>Summary</span></div>
+    <div class="scorecard-row">
+      <div class="scorecard" data-def="sourcedweek">
+        <div class="scorecard-label">Sourced / Week</div>
+        <div class="scorecard-value" id="sum-sourced">&mdash;</div>
+        <div class="scorecard-sub" id="sum-sourced-note"></div>
+        <div class="scorecard-hint">click for definition</div>
+      </div>
+      <div class="scorecard" data-def="screens">
+        <div class="scorecard-label">Recruiter Screens</div>
+        <div class="scorecard-value" id="sum-top">&mdash;</div>
+        <div class="scorecard-hint">click for definition</div>
+      </div>
+      <div class="scorecard" data-def="screensweek">
+        <div class="scorecard-label">Screens / Week</div>
+        <div class="scorecard-value" id="sum-screens">&mdash;</div>
+        <div class="scorecard-sub" id="sum-screens-note"></div>
+        <div class="scorecard-hint">click for definition</div>
+      </div>
+      <div class="scorecard" data-def="passthrough">
+        <div class="scorecard-label">Pass-through Rate</div>
+        <div class="scorecard-value" id="sum-rate">&mdash;</div>
+        <div class="scorecard-sub" id="sum-note"></div>
+        <div class="scorecard-hint">click for definition</div>
+      </div>
+      <div class="scorecard" data-def="offers">
+        <div class="scorecard-label" id="lbl-bottom">Offers Extended</div>
+        <div class="scorecard-value" id="sum-bottom">&mdash;</div>
+        <div class="scorecard-hint">click for definition</div>
+      </div>
+    </div>
+
+    <!-- Definition modal -->
+    <div class="modal-overlay" id="def-modal" onclick="closeDef(event)">
+      <div class="modal">
+        <button class="modal-close" onclick="closeDef()">&times;</button>
+        <h2 id="def-title"></h2>
+        <p id="def-body"></p>
+      </div>
+    </div>
+
+    <!-- Weeks detail modal -->
+    <div class="modal-overlay" id="weeks-modal" onclick="closeWeeksModal(event)">
+      <div class="modal">
+        <button class="modal-close" onclick="closeWeeksModal()">&times;</button>
+        <h2>Weeks Remaining</h2>
+        <p id="weeks-modal-body"></p>
+      </div>
+    </div>
+
+    <!-- Funnel -->
+    <div class="section-bar"><span>Funnel</span></div>
+    <div class="mode-toggle">
+      <button class="mode-btn active" id="btn-count" onclick="setMode('count')">Start from headcount</button>
+      <button class="mode-btn" id="btn-hires" onclick="setMode('hires')">Start from hires needed</button>
+    </div>
+    <div class="col-heads">
+      <div class="col-head">Stage</div>
+      <div class="col-head">Volume</div>
+      <div class="col-head right" id="col-ctrl-head">Candidates</div>
+      <div class="col-head right" id="col-badge-head">Pass-through</div>
+    </div>
+    <div id="stages-container"></div>
+
+    <!-- Weekly targets -->
+    <div class="section-bar"><span>Weekly Targets</span></div>
+    <div class="target-grid">
+      <div class="target-card" style="cursor:pointer;" onclick="openWeeksModal()">
+        <label>Weeks remaining</label>
+        <input type="number" id="weeks-label" min="0" max="52" step="1" oninput="syncWeeks(this); update()" onclick="event.stopPropagation()">
+        <div class="card-note" id="weeks-range"></div>
+        <div class="card-note">Dec excluded for pipeline lag. Click for details.</div>
+      </div>
+      <div class="target-card">
+        <label>Sourced split</label>
+        <input type="number" id="sourced-split" value="50" min="1" max="100" step="1" oninput="update()">
+        <span class="ptr-unit">%</span>
+        <div class="card-note">Portion of offers from sourcing.</div>
+      </div>
+      <div class="target-card">
+        <label>Interest rate</label>
+        <input type="number" id="interest-rate" value="10" min="1" max="100" step="1" oninput="update()">
+        <span class="ptr-unit">%</span>
+        <div class="card-note">Sourced candidates who enter funnel.</div>
+      </div>
     </div>
   </div>
 
-  <!-- Weeks detail modal -->
-  <div class="modal-overlay" id="weeks-modal" onclick="closeWeeksModal(event)">
-    <div class="modal">
-      <button class="modal-close" onclick="closeWeeksModal()">&times;</button>
-      <h2>Weeks Remaining</h2>
-      <p id="weeks-modal-body"></p>
+  <!-- ══════════ ADMIN TAB ══════════ -->
+  <div class="tab-panel" id="panel-admin">
+    <div id="admin-loading" class="admin-loading">Loading admin data...</div>
+    <div id="admin-content" style="display:none;">
+
+      <!-- Summary scorecards -->
+      <div class="section-bar">
+        <span>User Summary</span>
+        <button class="refresh-btn" onclick="loadAdminData()">Refresh all</button>
+      </div>
+      <div class="scorecard-row">
+        <div class="scorecard" style="cursor:default;">
+          <div class="scorecard-label">Unique Users</div>
+          <div class="scorecard-value" id="stat-users">&mdash;</div>
+        </div>
+        <div class="scorecard" style="cursor:default;">
+          <div class="scorecard-label">Total Sessions</div>
+          <div class="scorecard-value" id="stat-sessions">&mdash;</div>
+        </div>
+        <div class="scorecard" style="cursor:default;">
+          <div class="scorecard-label">Presets Saved</div>
+          <div class="scorecard-value" id="stat-presets">&mdash;</div>
+        </div>
+        <div class="scorecard" style="cursor:default;">
+          <div class="scorecard-label">Most Active</div>
+          <div class="scorecard-value" id="stat-active" style="font-size:14px;">&mdash;</div>
+        </div>
+        <div class="scorecard" style="cursor:default;">
+          <div class="scorecard-label">Last Activity</div>
+          <div class="scorecard-value" id="stat-last" style="font-size:14px;">&mdash;</div>
+        </div>
+      </div>
+
+      <!-- Role management -->
+      <div class="section-bar">
+        <span>Role Management</span>
+        <button class="refresh-btn" onclick="loadAdminData()">Refresh</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Email</th><th>Role</th><th></th></tr></thead>
+          <tbody id="roles-body"></tbody>
+        </table>
+      </div>
+      <div class="add-row">
+        <input type="email" id="new-email" placeholder="email@example.com">
+        <select id="new-role"><option value="viewer">Viewer</option><option value="user">User</option><option value="admin">Admin</option></select>
+        <button class="btn btn-primary" onclick="addRole()">Add User</button>
+      </div>
+      <div class="csv-section">
+        <p>Bulk import: paste CSV rows (email, role) — one per line.</p>
+        <textarea id="csv-input" placeholder="jane@co.com, user&#10;bob@co.com, admin"></textarea>
+        <button class="btn btn-outline" onclick="uploadCsv()" style="margin-top:6px;">Import CSV</button>
+      </div>
+
+      <!-- Preset management -->
+      <div class="section-bar">
+        <span>Preset Management</span>
+        <button class="refresh-btn" onclick="loadAdminData()">Refresh</button>
+      </div>
+      <div class="filters">
+        <input type="text" id="preset-filter" placeholder="Search by name or owner..." oninput="renderAdminPresets()">
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Name</th><th>Owner</th><th>Created</th><th>Modified</th><th></th></tr></thead>
+          <tbody id="presets-body"></tbody>
+        </table>
+      </div>
+
+      <!-- Activity log -->
+      <div class="section-bar">
+        <span>Activity Log</span>
+        <button class="refresh-btn" onclick="loadAdminData()">Refresh</button>
+      </div>
+      <div class="filters">
+        <input type="text" id="log-filter-user" placeholder="Filter by email..." oninput="renderLogs()">
+        <select id="log-filter-action" onchange="renderLogs()">
+          <option value="">All actions</option>
+          <option value="open">open</option>
+          <option value="save_preset">save_preset</option>
+          <option value="load_preset">load_preset</option>
+          <option value="delete_preset">delete_preset</option>
+          <option value="update_inputs">update_inputs</option>
+          <option value="set_role">set_role</option>
+          <option value="remove_role">remove_role</option>
+          <option value="bulk_set_roles">bulk_set_roles</option>
+          <option value="admin_delete_preset">admin_delete_preset</option>
+        </select>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Timestamp</th><th>User</th><th>Action</th><th>Detail</th></tr></thead>
+          <tbody id="logs-body"></tbody>
+        </table>
+      </div>
+      <div class="pagination">
+        <button class="btn btn-outline btn-sm" onclick="logPage(-1)">Prev</button>
+        <span id="log-page-info">&mdash;</span>
+        <button class="btn btn-outline btn-sm" onclick="logPage(1)">Next</button>
+      </div>
     </div>
   </div>
 
-  <!-- Funnel -->
-  <div class="section-bar">Funnel</div>
-  <div class="mode-toggle">
-    <button class="mode-btn active" id="btn-count" onclick="setMode('count')">Start from headcount</button>
-    <button class="mode-btn" id="btn-hires" onclick="setMode('hires')">Start from hires needed</button>
-  </div>
-  <div class="col-heads">
-    <div class="col-head">Stage</div>
-    <div class="col-head">Volume</div>
-    <div class="col-head right" id="col-ctrl-head">Candidates</div>
-    <div class="col-head right" id="col-badge-head">Pass-through</div>
-  </div>
-  <div id="stages-container"></div>
-
-  <!-- Weekly targets -->
-  <div class="section-bar">Weekly Targets</div>
-  <div class="target-grid">
-    <div class="target-card" style="cursor:pointer;" onclick="openWeeksModal()">
-      <label>Weeks remaining</label>
-      <input type="number" id="weeks-label" min="0" max="52" step="1" oninput="syncWeeks(this); update()" onclick="event.stopPropagation()">
-      <div class="card-note" id="weeks-range"></div>
-      <div class="card-note">Dec excluded for pipeline lag. Click for details.</div>
-    </div>
-    <div class="target-card">
-      <label>Sourced split</label>
-      <input type="number" id="sourced-split" value="50" min="1" max="100" step="1" oninput="update()">
-      <span class="ptr-unit">%</span>
-      <div class="card-note">Portion of offers from sourcing.</div>
-    </div>
-    <div class="target-card">
-      <label>Interest rate</label>
-      <input type="number" id="interest-rate" value="10" min="1" max="100" step="1" oninput="update()">
-      <span class="ptr-unit">%</span>
-      <div class="card-note">Sourced candidates who enter funnel.</div>
-    </div>
-  </div>
 </div>
 
 <!-- Toast -->
 <div class="toast" id="toast"></div>
 
 <script>
-// ── Pipeline stage definitions ──
+// ═══════════════════════════════════════════
+//  TAB SWITCHING
+// ═══════════════════════════════════════════
+var adminDataLoaded = false;
+
+function switchTab(tab) {
+  document.querySelectorAll(".tab-btn").forEach(function(b) { b.classList.remove("active"); });
+  document.querySelectorAll(".tab-panel").forEach(function(p) { p.classList.remove("active"); });
+
+  if (tab === "admin") {
+    document.getElementById("admin-tab-btn").classList.add("active");
+    document.getElementById("panel-admin").classList.add("active");
+    if (!adminDataLoaded) loadAdminData();
+  } else {
+    document.querySelector(".tab-btn").classList.add("active");
+    document.getElementById("panel-calc").classList.add("active");
+  }
+}
+
+// ═══════════════════════════════════════════
+//  CALCULATOR
+// ═══════════════════════════════════════════
+
 var STAGES = [
   { id:"app",      label:"Application review", defCount:500, defPtr:24  },
   { id:"rec",      label:"Recruiting screen",  defCount:120, defPtr:50  },
@@ -288,7 +465,6 @@ var STAGES = [
   { id:"offer",    label:"Offer",              defCount:8,   defPtr:null}
 ];
 
-// ── Scorecard definitions ──
 var DEFINITIONS = {
   screens: {
     title: "Recruiter Screens",
@@ -333,7 +509,7 @@ var currentUser = { email: "", role: "" };
 var presetsCache = [];
 var container = document.getElementById("stages-container");
 
-// ── Weeks calc ──
+// Weeks calc
 var MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
 function fmtDateShort(d) {
@@ -378,14 +554,14 @@ function closeWeeksModal(e) {
   document.getElementById("weeks-modal").classList.remove("open");
 }
 
-// ── Toast helper ──
+// Toast
 function showToast(msg) {
   var el = document.getElementById("toast");
   el.textContent = msg; el.style.display = "block";
   setTimeout(function() { el.style.display = "none"; }, 2500);
 }
 
-// ── State collect / apply ──
+// State collect / apply
 function collectState() {
   var state = { mode: mode, weeks: getWeeks() };
   state.sourcedSplit = parseFloat(document.getElementById("sourced-split").value) || 50;
@@ -417,7 +593,7 @@ function applyState(state) {
   update();
 }
 
-// ── Activity logging (debounced for input changes) ──
+// Activity logging (debounced)
 var inputDebounce = null;
 function scheduleInputLog() {
   clearTimeout(inputDebounce);
@@ -427,7 +603,7 @@ function scheduleInputLog() {
   }, 5000);
 }
 
-// ── Preset UI ──
+// Preset UI
 function refreshPresets() {
   google.script.run.withSuccessHandler(function(list) {
     presetsCache = list || [];
@@ -496,7 +672,7 @@ function deleteCurrentPreset() {
   }).deletePreset(name);
 }
 
-// ── Build stage rows ──
+// Build stage rows
 STAGES.forEach(function(s, i) {
   var row = document.createElement("div");
   row.className = "stage-row";
@@ -537,7 +713,7 @@ STAGES.forEach(function(s, i) {
   container.appendChild(row);
 });
 
-// ── Mode switching ──
+// Mode switching
 function setMode(m) {
   mode = m;
   document.getElementById("btn-count").classList.toggle("active", m === "count");
@@ -572,7 +748,7 @@ function badgeColor(r) {
 
 function update() { mode === "count" ? updateCount() : updateHires(); }
 
-// ── Weekly screens & sourcing ──
+// Weekly screens & sourcing
 function updateScreensCard(offerCount, ptrs) {
   var recIdx   = STAGES.findIndex(function(s) { return s.id === "rec"; });
   var offerIdx = STAGES.findIndex(function(s) { return s.id === "offer"; });
@@ -597,7 +773,7 @@ function updateScreensCard(offerCount, ptrs) {
     outreach !== null ? outreach.toLocaleString() + " total" : "";
 }
 
-// ── Headcount mode ──
+// Headcount mode
 function updateCount() {
   var vals   = STAGES.map(function(s) { return Math.max(0, parseFloat(document.getElementById("num-" + s.id).value) || 0); });
   var maxVal = vals[0] || 1;
@@ -630,7 +806,7 @@ function updateCount() {
   updateScreensCard(bot, ptrs);
 }
 
-// ── Hires-needed mode ──
+// Hires-needed mode
 function updateHires() {
   var n = STAGES.length;
   var hiresNeeded = Math.max(0, parseFloat(document.getElementById("num-" + STAGES[n-1].id).value) || 0);
@@ -669,23 +845,238 @@ function updateHires() {
   updateScreensCard(hiresNeeded, ptrs.concat([null]));
 }
 
-// ── Role-based UI controls ──
+// Role-based UI
 function applyRoleUI(role) {
   if (role === "viewer") {
     document.getElementById("btn-save").style.display = "none";
     document.getElementById("btn-delete").style.display = "none";
-    // Disable all inputs
     var inputs = document.querySelectorAll("input[type=number]");
     for (var i = 0; i < inputs.length; i++) inputs[i].disabled = true;
     var buttons = document.querySelectorAll(".mode-btn");
     for (var j = 0; j < buttons.length; j++) buttons[j].disabled = true;
   }
   if (role === "admin") {
-    document.getElementById("admin-link").style.display = "";
+    document.getElementById("admin-tab-btn").style.display = "";
   }
 }
 
-// ── Init ──
+// ═══════════════════════════════════════════
+//  ADMIN PANEL
+// ═══════════════════════════════════════════
+var adminData = { presets: [], logs: [], roles: [], summary: {} };
+var logPageIdx = 0;
+var LOG_PAGE_SIZE = 50;
+
+function fmtDate(iso) {
+  if (!iso) return "\u2014";
+  try {
+    var d = new Date(iso);
+    return d.toLocaleDateString() + " " + d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  } catch(_) { return iso; }
+}
+
+function loadAdminData() {
+  var loadEl = document.getElementById("admin-loading");
+  loadEl.textContent = "Loading admin data...";
+  loadEl.style.display = "";
+  document.getElementById("admin-content").style.display = "none";
+
+  google.script.run.withSuccessHandler(function(data) {
+    if (data.error) {
+      loadEl.textContent = "Error: " + data.error;
+      return;
+    }
+    adminData = data;
+    adminDataLoaded = true;
+    loadEl.style.display = "none";
+    document.getElementById("admin-content").style.display = "";
+    renderAdminSummary();
+    renderRoles();
+    renderAdminPresets();
+    renderLogs();
+    showToast("Admin data loaded");
+  }).withFailureHandler(function(err) {
+    loadEl.textContent = "Error loading data: " + err.message;
+  }).getAdminData();
+}
+
+function renderAdminSummary() {
+  var s = adminData.summary;
+  document.getElementById("stat-users").textContent = s.uniqueUsers || 0;
+  document.getElementById("stat-sessions").textContent = s.totalSessions || 0;
+  document.getElementById("stat-presets").textContent = s.totalPresets || 0;
+  document.getElementById("stat-active").textContent = s.mostActive ? s.mostActive.split("@")[0] : "\u2014";
+  document.getElementById("stat-last").textContent = s.lastActivity ? fmtDate(s.lastActivity) : "\u2014";
+}
+
+function renderRoles() {
+  var body = document.getElementById("roles-body");
+  body.innerHTML = "";
+  if (!adminData.roles.length) {
+    body.innerHTML = "<tr><td colspan='3' style='color:#9b9a97;text-align:center;'>No users yet.</td></tr>";
+    return;
+  }
+  adminData.roles.forEach(function(r) {
+    var tr = document.createElement("tr");
+    tr.innerHTML =
+      "<td>" + escHtml(r.email) + "</td>" +
+      "<td><select onchange=\"changeRole('" + escAttr(r.email) + "', this.value)\">" +
+        "<option value='viewer'" + (r.role === "viewer" ? " selected" : "") + ">Viewer</option>" +
+        "<option value='user'"   + (r.role === "user"   ? " selected" : "") + ">User</option>" +
+        "<option value='admin'"  + (r.role === "admin"  ? " selected" : "") + ">Admin</option>" +
+      "</select></td>" +
+      "<td><button class='btn btn-danger btn-sm' onclick=\"removeUser('" + escAttr(r.email) + "')\">Remove</button></td>";
+    body.appendChild(tr);
+  });
+}
+
+function changeRole(email, role) {
+  google.script.run.withSuccessHandler(function(res) {
+    if (res.error) { showToast(res.error); return; }
+    showToast("Role updated"); loadAdminData();
+  }).setRole(email, role);
+}
+
+function addRole() {
+  var email = document.getElementById("new-email").value.trim();
+  var role  = document.getElementById("new-role").value;
+  if (!email) return;
+  google.script.run.withSuccessHandler(function(res) {
+    if (res.error) { showToast(res.error); return; }
+    document.getElementById("new-email").value = "";
+    showToast("User added"); loadAdminData();
+  }).setRole(email, role);
+}
+
+function removeUser(email) {
+  if (!confirm("Remove access for " + email + "?")) return;
+  google.script.run.withSuccessHandler(function(res) {
+    if (res.error) { showToast(res.error); return; }
+    showToast("User removed"); loadAdminData();
+  }).removeRole(email);
+}
+
+function uploadCsv() {
+  var raw = document.getElementById("csv-input").value.trim();
+  if (!raw) return;
+  var rows = raw.split("\n").map(function(line) {
+    return line.split(",").map(function(c) { return c.trim(); });
+  }).filter(function(r) { return r.length >= 2 && r[0] && r[1]; });
+  if (!rows.length) { showToast("No valid rows found."); return; }
+  google.script.run.withSuccessHandler(function(res) {
+    if (res.error) { showToast(res.error); return; }
+    document.getElementById("csv-input").value = "";
+    showToast(res.count + " roles imported"); loadAdminData();
+  }).bulkSetRoles(rows);
+}
+
+function renderAdminPresets() {
+  var filter = document.getElementById("preset-filter").value.toLowerCase();
+  var body = document.getElementById("presets-body");
+  body.innerHTML = "";
+  var filtered = adminData.presets.filter(function(p) {
+    return !filter || p.name.toLowerCase().indexOf(filter) !== -1 || p.owner.toLowerCase().indexOf(filter) !== -1;
+  });
+  if (!filtered.length) {
+    body.innerHTML = "<tr><td colspan='5' style='color:#9b9a97;text-align:center;'>No presets found.</td></tr>";
+    return;
+  }
+  filtered.forEach(function(p) {
+    var tr = document.createElement("tr");
+    tr.innerHTML =
+      "<td>" + escHtml(p.name) + "</td>" +
+      "<td>" + escHtml(p.owner) + "</td>" +
+      "<td>" + fmtDate(p.created) + "</td>" +
+      "<td>" + fmtDate(p.modified) + "</td>" +
+      "<td><button class='btn btn-danger btn-sm' onclick=\"adminDelete('" + escAttr(p.name) + "')\">Delete</button></td>";
+    body.appendChild(tr);
+  });
+}
+
+function adminDelete(name) {
+  if (!confirm("Delete preset \"" + name + "\"?")) return;
+  google.script.run.withSuccessHandler(function(res) {
+    if (res.error) { showToast(res.error); return; }
+    showToast("Deleted: " + name); loadAdminData();
+  }).adminDeletePreset(name);
+}
+
+// Activity log
+function getFilteredLogs() {
+  var userFilter   = document.getElementById("log-filter-user").value.toLowerCase();
+  var actionFilter = document.getElementById("log-filter-action").value;
+  return adminData.logs.filter(function(l) {
+    if (userFilter && l.email.toLowerCase().indexOf(userFilter) === -1) return false;
+    if (actionFilter && l.action !== actionFilter) return false;
+    return true;
+  });
+}
+
+function renderLogs() {
+  logPageIdx = 0;
+  renderLogPage();
+}
+
+function renderLogPage() {
+  var filtered = getFilteredLogs();
+  var total = filtered.length;
+  var start = logPageIdx * LOG_PAGE_SIZE;
+  var page  = filtered.slice(start, start + LOG_PAGE_SIZE);
+  var body  = document.getElementById("logs-body");
+  body.innerHTML = "";
+
+  if (!total) {
+    body.innerHTML = "<tr><td colspan='4' style='color:#9b9a97;text-align:center;'>No activity yet.</td></tr>";
+    document.getElementById("log-page-info").textContent = "0 entries";
+    return;
+  }
+
+  page.forEach(function(l, idx) {
+    var globalIdx = start + idx;
+    var tr = document.createElement("tr");
+    var detailHtml = "";
+    if (l.detail) {
+      detailHtml =
+        "<span class='detail-toggle' onclick=\"toggleDetail('det-" + globalIdx + "')\">show</span>" +
+        "<div class='detail-content' id='det-" + globalIdx + "'>" + escHtml(formatJson(l.detail)) + "</div>";
+    }
+    tr.innerHTML =
+      "<td style='white-space:nowrap'>" + fmtDate(l.timestamp) + "</td>" +
+      "<td>" + escHtml(l.email) + "</td>" +
+      "<td>" + escHtml(l.action) + "</td>" +
+      "<td>" + detailHtml + "</td>";
+    body.appendChild(tr);
+  });
+
+  var totalPages = Math.max(1, Math.ceil(total / LOG_PAGE_SIZE));
+  document.getElementById("log-page-info").textContent =
+    "Page " + (logPageIdx + 1) + " of " + totalPages + " (" + total + " entries)";
+}
+
+function logPage(dir) {
+  var filtered = getFilteredLogs();
+  var totalPages = Math.max(1, Math.ceil(filtered.length / LOG_PAGE_SIZE));
+  logPageIdx = Math.max(0, Math.min(totalPages - 1, logPageIdx + dir));
+  renderLogPage();
+}
+
+function toggleDetail(id) {
+  var el = document.getElementById(id);
+  el.style.display = el.style.display === "none" || !el.style.display ? "block" : "none";
+}
+
+function formatJson(str) {
+  try { return JSON.stringify(JSON.parse(str), null, 2); }
+  catch(_) { return str; }
+}
+
+// Helpers
+function escHtml(s) { var d = document.createElement("div"); d.textContent = s || ""; return d.innerHTML; }
+function escAttr(s) { return (s || "").replace(/'/g, "\\'").replace(/"/g, "&quot;"); }
+
+// ═══════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════
 setMode("count");
 
 google.script.run.withSuccessHandler(function(info) {

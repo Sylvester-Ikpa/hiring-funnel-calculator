@@ -5,31 +5,11 @@
 
 var SPREADSHEET_KEY = "HIRING_FUNNEL_SS_ID";
 
-/**
- * Run this once from the script editor to seed the initial admin.
- * After that, manage roles from the Admin UI.
- */
-function setupInitialAdmin() {
-  var ss = getOrCreateSpreadsheet();
-  var sheet = ss.getSheetByName("Roles");
-  var data = sheet.getDataRange().getValues();
-  var target = "sylvester.ikpa@doordash.com";
-
-  for (var i = 1; i < data.length; i++) {
-    if (String(data[i][0]).toLowerCase().trim() === target) {
-      sheet.getRange(i + 1, 2).setValue("admin");
-      Logger.log("Updated " + target + " to admin.");
-      return;
-    }
-  }
-  sheet.appendRow([target, "admin"]);
-  Logger.log("Added " + target + " as admin.");
-}
-
 // ── Routing ──
 
 function doGet(e) {
-  var page = (e && e.parameter && e.parameter.page) || "";
+  autoBootstrapAdmin_();
+
   var role = getUserRole();
 
   if (!role) {
@@ -41,23 +21,27 @@ function doGet(e) {
     ).setTitle("Access Denied");
   }
 
-  if (page === "admin") {
-    if (role !== "admin") {
-      return HtmlService.createHtmlOutput(
-        "<html><body style='font-family:sans-serif;display:flex;align-items:center;" +
-        "justify-content:center;height:100vh;background:#f7f8fa'>" +
-        "<div style='text-align:center'><h2>Access Denied</h2>" +
-        "<p>Admin access required.</p></div></body></html>"
-      ).setTitle("Access Denied");
-    }
-    return HtmlService.createHtmlOutputFromFile("Admin")
-      .setTitle("Hiring Funnel — Admin")
-      .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
-  }
-
   return HtmlService.createHtmlOutputFromFile("Index")
     .setTitle("Hiring Funnel Calculator")
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+}
+
+/**
+ * If the Roles sheet is empty, auto-promote the current user to admin.
+ * This makes the first visitor the initial admin with zero manual setup.
+ */
+function autoBootstrapAdmin_() {
+  var email = getUserEmail();
+  if (!email) return;
+
+  var ss = getOrCreateSpreadsheet();
+  var sheet = ss.getSheetByName("Roles");
+  var data = sheet.getDataRange().getValues();
+
+  // Only bootstrap when no roles exist yet (header row only)
+  if (data.length <= 1) {
+    sheet.appendRow([email.toLowerCase().trim(), "admin"]);
+  }
 }
 
 // ── Spreadsheet bootstrap ──
@@ -96,8 +80,11 @@ function ensureSheet_(ss, name, headers) {
 // ── User identity & roles ──
 
 function getUserEmail() {
-  return Session.getActiveUser().getEmail();
+  var email = Session.getActiveUser().getEmail();
+  if (!email) email = Session.getEffectiveUser().getEmail();
+  return email || "";
 }
+
 
 function getUserRole() {
   var email = getUserEmail().toLowerCase();
